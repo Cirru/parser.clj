@@ -13,3 +13,47 @@
 
 (defn create-nesting [n]
   (create-helper [] n))
+
+(defn dollar-helper [before after]
+  (if (= (count after) 0) before
+    (let
+      [ cursor (first after)
+        cursor-rest (info [] (rest after))]
+      (cond
+        (vector? cursor) (dollar-helper
+          (conj before (resolve-dollar cursor))
+          cursor-rest)
+        (= ((fist after) :text) \$) (conj before
+          (resolve-dollar cursor-rest))
+        :else (dollar-helper
+          (conj before cursor)
+          cursor-rest)))))
+
+(defn resolve-dollar [xs]
+  (if (= (count xs) 0) xs
+    (dollar-helper [] xs)))
+
+(defn comma-helper [before after]
+  (if (= (count after) 0) before
+    (let
+      [ cursor (first after)
+        cursor-rest (into [] (rest after))]
+      (if
+        (and (vector? cursor) (> (count cursor) 0))
+        (let
+          [ head (first cursor)]
+          (cond
+            (vector? head) (comma-helper
+              (conj before (resolve-comma cursor))
+              cursor-rest)
+            (= (head :text) \,) (comma-helper before
+              (into []
+                (resolve-comma (into [] (rest cursor)) cursor-rest)))
+            :else (comma-helper
+              (conj before (resolve-comma cursor))
+              cursor-rest)))
+        (comma-helper (conj before cursor) cursor-rest)))))
+
+(defn resolve-comma [xs]
+  (if (= (count xs) 0) xs
+    (comma-helper [] xs)))
