@@ -1,12 +1,22 @@
-# cirru/parser
 
-A Clojure library designed to ... well, that part is up to you.
+cirru/parser
+----
 
-## Usage
+Cirru Parser in Clojure.
 
-FIXME
+### Usage
 
-## License
+```clojure
+[cirru/parser "0.0.1"]
+```
+
+```clojure
+(ns your-project.core
+  [:require [cirru.parser.core :as cirru]])
+(cirru/pare "code" "filename")
+```
+
+### License
 
 Copyright © 2015 FIXME
 

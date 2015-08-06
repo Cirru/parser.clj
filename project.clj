@@ -1,4 +1,4 @@
-(defproject cirru/parser "0.0.1"
+(defproject cirru/parser "0.0.2"
   :description "Cirru Parser in Clojure"
   :url "http://github.com/Cirru/parser.clj"
   :license {:name "Eclipse Public License"
