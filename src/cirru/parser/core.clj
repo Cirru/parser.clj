@@ -17,7 +17,9 @@
         :indented 0
         :nest 0
         :path filename}]
-    (parsing [] buffer state code)))
+    (tree/resolve-comma
+      (tree/resolve-dollar
+        (parsing [] buffer state code)))))
 
 (defn shorten [xs]
   (if (vector? xs)
@@ -230,6 +232,14 @@
       :x (+ (state :x) 1))
     (subs code 1)))
 
+(defn indent-newline [xs buffer state code]
+  (parsing xs buffer
+    (assoc state
+      :x 1
+      :y (+ (state :y) 1)
+      :indented 0)
+    (subs code 1)))
+
 (defn indent-close [_ _ _ _]
   (throw (Exception. "close parenthese at indent")))
 
@@ -264,15 +274,15 @@
 ; parse
 
 (defn parsing [& args]
-  (println "running parsing")
+  ; (println "running parsing")
   (let
     [ [xs buffer state code] args
       eof (= (count code) 0)
       char (if eof nil (first code))]
-    (println "\n")
-    (prn "state is:" state)
-    (prn "buffer is:" state)
-    (prn "code is:" code)
+    ; (println "\n")
+    ; (prn "state is:" state)
+    ; (prn "buffer is:" state)
+    ; (prn "code is:" code)
     (case (state :name)
       :escape (if eof   (apply escape-eof       args)
         (case char
@@ -305,7 +315,7 @@
       :indent (if eof   (apply indent-eof       args)
         (case char
           \space        (apply indent-space     args)
-          \newline      (apply indent-space     args)
+          \newline      (apply indent-newline   args)
           \)            (apply indent-close     args)
                         (apply indent-else      args)))
       (throw (Exception. "unknown state")))))
