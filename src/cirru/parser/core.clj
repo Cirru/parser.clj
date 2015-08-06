@@ -19,7 +19,7 @@
         :path filename}]
     (tree/resolve-comma
       (tree/resolve-dollar
-        (parsing [] buffer state code)))))
+        (trampoline parsing [] buffer state code)))))
 
 (defn shorten [xs]
   (if (vector? xs)
@@ -283,7 +283,7 @@
     ; (prn "state is:" state)
     ; (prn "buffer is:" state)
     ; (prn "code is:" code)
-    (case (state :name)
+    #(case (state :name)
       :escape (if eof   (apply escape-eof       args)
         (case char
           \newline      (apply escape-newline   args)
