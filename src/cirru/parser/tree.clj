@@ -14,16 +14,19 @@
 (defn create-nesting [n]
   (create-helper [] n))
 
+(declare resolve-dollar)
+(declare resolve-comma)
+
 (defn dollar-helper [before after]
   (if (= (count after) 0) before
     (let
       [ cursor (first after)
-        cursor-rest (info [] (rest after))]
+        cursor-rest (into [] (rest after))]
       (cond
         (vector? cursor) (dollar-helper
           (conj before (resolve-dollar cursor))
           cursor-rest)
-        (= ((fist after) :text) \$) (conj before
+        (= ((first after) :text) \$) (conj before
           (resolve-dollar cursor-rest))
         :else (dollar-helper
           (conj before cursor)

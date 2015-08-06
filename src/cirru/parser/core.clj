@@ -1,9 +1,9 @@
 
 (ns cirru.parser.core
-  (:require [cirru.parser.tree :as tree]))
+  (:require [cirru.parser.tree :as tree])
+  (:use [clojure.pprint :only [pprint]]))
 
-(defn parsing [xs buffer state code]
-  xs)
+(declare parsing)
 
 (defn parse [code filename]
   (let
@@ -113,13 +113,13 @@
     (subs code 1)))
 
 (defn space-newline [xs buffer state code]
-  (if (= (state :nest) 0)
+  (if (not= (state :nest) 0)
     (throw (Exception. "incorrect nesting"))
     (parsing xs buffer
       (assoc state
         :name :indent
         :x 1
-        :y (+ (:state :indented) 1)
+        :y (+ (state :indented) 1)
         :indented 0)
       (subs code 1))))
 
@@ -163,7 +163,7 @@
     (assoc state
       :name :token
       :x (+ (state :x) 1))
-    (subs code 0 1)))
+    (subs code 1)))
 
 ; token
 
@@ -227,7 +227,7 @@
   (parsing xs buffer
     (assoc state
       :indented (+ (state :indented) 1)
-      :x (+ state :indented) 1)
+      :x (+ (state :x) 1))
     (subs code 1)))
 
 (defn indent-close [_ _ _ _]
@@ -250,11 +250,13 @@
         (tree/append-item xs
           (- (+ (state :level) diff) 1)
           (tree/create-nesting 1))
+        buffer
         nextState
         code)
       (> diff 0) (parsing
         (tree/append-item xs (state :level)
           (tree/create-nesting diff))
+        buffer
         nextState
         code)
       :else (parsing xs buffer nextState code))))
@@ -262,43 +264,48 @@
 ; parse
 
 (defn parsing [& args]
+  (println "running parsing")
   (let
     [ [xs buffer state code] args
       eof (= (count code) 0)
       char (if eof nil (first code))]
+    (println "\n")
+    (prn "state is:" state)
+    (prn "buffer is:" state)
+    (prn "code is:" code)
     (case (state :name)
       :escape (if eof   (apply escape-eof       args)
         (case char
           \newline      (apply escape-newline   args)
           \n            (apply escape-n         args)
           \t            (apply escape-t         args)
-          :else         (apply escape-else      args)))
+                        (apply escape-else      args)))
       :string (if eof   (apply string-eof       args)
         (case char
           \\            (apply string-backslash args)
           \newline      (apply string-newline   args)
           \"            (apply string-quote     args)
-          :else         (apply string-else      args)))
-      :space (if (eof   (apply space-eof        args)
+                        (apply string-else      args)))
+      :space (if eof    (apply space-eof        args)
         (case char
           \space        (apply space-space      args)
           \newline      (apply space-newline    args)
           \(            (apply space-open       args)
           \)            (apply space-close      args)
           \"            (apply space-quote      args)
-          :else         (apply space-else       args)))
-      :token (if (eof   (apply token-eof        args)
+                        (apply space-else       args)))
+      :token (if eof    (apply token-eof        args)
         (case char
           \space        (apply token-space      args)
           \newline      (apply token-newline    args)
           \(            (apply token-open       args)
           \)            (apply token-close      args)
           \"            (apply token-quote      args)
-          :else         (apply token-else       args)))
-      :indent (if (eof  (apply indent-eof       args)
+                        (apply token-else       args)))
+      :indent (if eof   (apply indent-eof       args)
         (case char
           \space        (apply indent-space     args)
           \newline      (apply indent-space     args)
           \)            (apply indent-close     args)
-          :else         (apply indent-else      args)))
-      :else (throw (Exception. "unknown state"))))))))
+                        (apply indent-else      args)))
+      (throw (Exception. "unknown state")))))
