@@ -1,0 +1,14 @@
+{
+  "name": "parser.clj",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Cirru/parser.clj.git",
+  "author": "jiyinyiyong <jiyinyiyong@gmail.com>",
+  "scripts": {
+    "watch": "shadow-cljs watch test"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "shadow-cljs": "^2.0.112"
+  }
+}

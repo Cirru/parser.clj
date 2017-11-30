@@ -1,5 +1,5 @@
 
-(ns cirru.parser.tree)
+(ns cirru-parser.tree)
 
 (defn append-item [xs level buffer]
   (if (= level 0)

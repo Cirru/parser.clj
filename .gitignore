@@ -1,13 +1,3 @@
+
 /target
-/classes
-/checkouts
-pom.xml
-pom.xml.asc
-*.jar
-*.class
-/.lein-*
-/.nrepl-port
-.hgignore
-.hg/
-/clojars
-/clojars.pub
+/node_modules

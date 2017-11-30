@@ -1,7 +1,6 @@
 
-(ns cirru.parser.core
-  (:require [cirru.parser.tree :as tree])
-  (:use [clojure.pprint :only [pprint]]))
+(ns cirru-parser.core
+  (:require [cirru-parser.tree :as tree]))
 
 (declare parsing)
 
@@ -32,10 +31,10 @@
 ; eof
 
 (defn escape-eof [_ _ _ _]
-  (throw (Exception. "EOF in escape state")))
+  (throw (js/Error. "EOF in escape state")))
 
 (defn string-eof [_ _ _ _]
-  (throw (Exception. "EOF in string state")))
+  (throw (js/Error. "EOF in string state")))
 
 (defn space-eof [xs _ _ _]
   xs)
@@ -52,7 +51,7 @@
 ; escape
 
 (defn escape-newline [_ _ _ _]
-  (throw (Exception. "new line while escape")))
+  (throw (js/Error. "new line while escape")))
 
 (defn escape-n [xs buffer state code]
   (parsing xs
@@ -89,7 +88,7 @@
     (subs code 1)))
 
 (defn string-newline [_ _ _ _]
-  (throw (Exception. "newline in a string")))
+  (throw (js/Error. "newline in a string")))
 
 (defn string-quote [xs buffer state code]
   (parsing xs buffer
@@ -116,7 +115,7 @@
 
 (defn space-newline [xs buffer state code]
   (if (not= (state :nest) 0)
-    (throw (Exception. "incorrect nesting"))
+    (throw (js/Error. "incorrect nesting"))
     (parsing xs buffer
       (assoc state
         :name :indent
@@ -137,7 +136,7 @@
 
 (defn space-close [xs buffer state code]
   (if (<= (state :nest) 0)
-    (throw (Exception. "close at space"))
+    (throw (js/Error. "close at space"))
     (parsing xs buffer
       (assoc state
         :nest (- (state :nest) 1)
@@ -196,7 +195,7 @@
     (subs code 1)))
 
 (defn token-open [_ _ _ _]
-  (throw (Exception. "open parenthesis in token")))
+  (throw (js/Error. "open parenthesis in token")))
 
 (defn token-close [xs buffer state code]
   (parsing
@@ -241,14 +240,14 @@
     (subs code 1)))
 
 (defn indent-close [_ _ _ _]
-  (throw (Exception. "close parenthese at indent")))
+  (throw (js/Error. "close parenthese at indent")))
 
 
 (defn indent-else [xs buffer state code]
   (let
     [ indented (if
         (= (mod (state :indented) 2) 1)
-        (throw (Exception. "odd indentation"))
+        (throw (js/Error. "odd indentation"))
         (/ (state :indented) 2))
       diff (- indented (state :indent))
       nextState (assoc state
@@ -318,4 +317,4 @@
           \newline      (apply indent-newline   args)
           \)            (apply indent-close     args)
                         (apply indent-else      args)))
-      (throw (Exception. "unknown state")))))
+      (throw (js/Error. "unknown state")))))

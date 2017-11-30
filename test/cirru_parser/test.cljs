@@ -1,7 +1,10 @@
-(ns cirru.parser.core-test
-  (:require [clojure.test :refer :all]
-            [cheshire.core :refer :all]
-            [cirru.parser.core :refer :all]))
+(ns cirru-parser.test
+  (:require [cljs.test :refer [deftest run-tests is testing]]
+            [cirru-parser.core :refer [parse pare]]
+            [cljs.reader :refer [read-string]]
+            ["fs" :as fs]))
+
+(defn slurp [x] (fs/readFileSync x "utf8"))
 
 ; (deftest pare-test
 ;   (testing "pare lines"
@@ -9,20 +12,20 @@
 
 (defn parse-file [x]
   (let
-    [ file (str "cirru/" x ".cirru")]
+    [file (str "data/cirru/" x ".cirru")]
     (pare (slurp file) file)))
 
-(defn parse-json [x]
+(defn parse-edn [x]
   (let
-    [ file (str "ast/" x ".json")]
-    (into [] (parse-string (slurp file)))))
+    [file (str "data/ast/" x ".edn")]
+    (read-string (slurp file))))
 
 (defn check [x]
   ; (println (parse-file x))
-  ; (println (parse-json x))
+  ; (println (parse-edn x))
   (=
     (parse-file x)
-    (parse-json x)))
+    (parse-edn x)))
 
 (deftest pare-comma
   (testing "pare comma"
@@ -63,3 +66,9 @@
 (deftest pare-unfolding
   (testing "pare unfolding"
     (is (check "unfolding"))))
+
+(defn main! []
+  (run-tests))
+
+(defn reload! []
+  (main!))
