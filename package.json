@@ -5,10 +5,23 @@
   "repository": "git@github.com:Cirru/parser.clj.git",
   "author": "jiyinyiyong <jiyinyiyong@gmail.com>",
   "scripts": {
-    "watch": "shadow-cljs watch test"
+    "cdn": "rsync -avr --progress dist/* tiye.me:cdn/parser.clj",
+    "tiye": "rsync -avr --progress dist/{index.html,manifest.json} tiye.me:repo/Cirru/parser.clj/",
+    "upload": "yarn cdn && yarn tiye",
+    "release": "shadow-cljs release browser",
+    "watch": "shadow-cljs watch browser",
+    "compile-ssr": "shadow-cljs compile ssr",
+    "html-dev": "env=dev node target/ssr.js && cp entry/manifest.json target/",
+    "html": "node target/ssr.js && cp entry/manifest.json dist/",
+    "index.html": "yarn compile-ssr && yarn html-dev",
+    "del": "rm -rf dist/*",
+    "serve": "http-server dist -s",
+    "build": "yarn del && yarn release && yarn compile-ssr && yarn html",
+    "watch-test": "shadow-cljs watch test"
   },
   "license": "MIT",
   "devDependencies": {
-    "shadow-cljs": "^2.0.112"
+    "http-server": "^0.10.0",
+    "shadow-cljs": "^2.0.114"
   }
 }
