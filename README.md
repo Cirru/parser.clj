@@ -4,7 +4,7 @@ Cirru Parser in ClojureScript
 
 ### Usage
 
-```clojure
+```edn
 [cirru/parser "0.1.0"]
 ```
 
@@ -22,7 +22,7 @@ yarn
 yarn watch
 
 # another terminnal
-node target/test.js
+node target/main.js demo.cirru
 ```
 
 ### License
