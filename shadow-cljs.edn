@@ -1,7 +1,19 @@
-
-{:source-paths ["src" "test"]
- :dependencies []
- :builds {:test {:target :node-script
-                 :output-to "target/test.js"
-                 :main cirru-parser.test/main!
-                 :devtools {:after-load cirru-parser.test/reload!}}}}
+{
+  :source-paths ["src" "test"]
+  :dependencies []
+  :open-file-command [
+    "subl"
+    ["%s:%s:%s" :file :line :column]
+  ]
+  :builds {
+    :app {
+      :target :node-script
+      :output-to "target/main.js"
+      :main cirru-parser.main/main!
+      :devtools {:after-load cirru-parser.main/reload!}
+    }
+    :test {
+      :target :node-test, :output-to "target/test.js", :ns-regexp "test$", :autorun true
+    }
+  }
+}

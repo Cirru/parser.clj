@@ -66,9 +66,3 @@
 (deftest pare-unfolding
   (testing "pare unfolding"
     (is (check "unfolding"))))
-
-(defn main! []
-  (run-tests))
-
-(defn reload! []
-  (main!))

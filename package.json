@@ -5,10 +5,10 @@
   "repository": "git@github.com:Cirru/parser.clj.git",
   "author": "jiyinyiyong <jiyinyiyong@gmail.com>",
   "scripts": {
-    "watch": "shadow-cljs watch test"
+    "watch": "yarn shadow-cljs watch app test"
   },
   "license": "MIT",
   "devDependencies": {
-    "shadow-cljs": "^2.0.112"
+    "shadow-cljs": "^2.8.76"
   }
 }

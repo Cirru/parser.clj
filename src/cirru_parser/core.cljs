@@ -4,18 +4,20 @@
 
 (declare parsing)
 
+(def state0 {
+  :name :indent
+  :x 1
+  :y 1
+  :level 1
+  :indent 0
+  :indented 0
+  :nest 0
+  :path nil})
+
 (defn parse [code filename]
   (let
     [ buffer ""
-      state {
-        :name :indent
-        :x 1
-        :y 1
-        :level 1
-        :indent 0
-        :indented 0
-        :nest 0
-        :path filename}]
+      state (assoc state0 :path filename)]
     (tree/resolve-comma
       (tree/resolve-dollar
         (trampoline parsing [] buffer state code)))))
@@ -272,49 +274,48 @@
 
 ; parse
 
-(defn parsing [& args]
+(defn parsing [xs buffer state code]
   ; (println "running parsing")
   (let
-    [ [xs buffer state code] args
-      eof (= (count code) 0)
+    [ eof (= (count code) 0)
       char (if eof nil (first code))]
     ; (println "\n")
     ; (prn "state is:" state)
     ; (prn "buffer is:" state)
     ; (prn "code is:" code)
     #(case (state :name)
-      :escape (if eof   (apply escape-eof       args)
+      :escape (if eof   (escape-eof       xs buffer state code)
         (case char
-          \newline      (apply escape-newline   args)
-          \n            (apply escape-n         args)
-          \t            (apply escape-t         args)
-                        (apply escape-else      args)))
-      :string (if eof   (apply string-eof       args)
+          \newline      (escape-newline   xs buffer state code)
+          \n            (escape-n         xs buffer state code)
+          \t            (escape-t         xs buffer state code)
+                        (escape-else      xs buffer state code)))
+      :string (if eof   (string-eof       xs buffer state code)
         (case char
-          \\            (apply string-backslash args)
-          \newline      (apply string-newline   args)
-          \"            (apply string-quote     args)
-                        (apply string-else      args)))
-      :space (if eof    (apply space-eof        args)
+          \\            (string-backslash xs buffer state code)
+          \newline      (string-newline   xs buffer state code)
+          \"            (string-quote     xs buffer state code)
+                        (string-else      xs buffer state code)))
+      :space (if eof    (space-eof        xs buffer state code)
         (case char
-          \space        (apply space-space      args)
-          \newline      (apply space-newline    args)
-          \(            (apply space-open       args)
-          \)            (apply space-close      args)
-          \"            (apply space-quote      args)
-                        (apply space-else       args)))
-      :token (if eof    (apply token-eof        args)
+          \space        (space-space      xs buffer state code)
+          \newline      (space-newline    xs buffer state code)
+          \(            (space-open       xs buffer state code)
+          \)            (space-close      xs buffer state code)
+          \"            (space-quote      xs buffer state code)
+                        (space-else       xs buffer state code)))
+      :token (if eof    (token-eof        xs buffer state code)
         (case char
-          \space        (apply token-space      args)
-          \newline      (apply token-newline    args)
-          \(            (apply token-open       args)
-          \)            (apply token-close      args)
-          \"            (apply token-quote      args)
-                        (apply token-else       args)))
-      :indent (if eof   (apply indent-eof       args)
+          \space        (token-space      xs buffer state code)
+          \newline      (token-newline    xs buffer state code)
+          \(            (token-open       xs buffer state code)
+          \)            (token-close      xs buffer state code)
+          \"            (token-quote      xs buffer state code)
+                        (token-else       xs buffer state code)))
+      :indent (if eof   (indent-eof       xs buffer state code)
         (case char
-          \space        (apply indent-space     args)
-          \newline      (apply indent-newline   args)
-          \)            (apply indent-close     args)
-                        (apply indent-else      args)))
+          \space        (indent-space     xs buffer state code)
+          \newline      (indent-newline   xs buffer state code)
+          \)            (indent-close     xs buffer state code)
+                        (indent-else      xs buffer state code)))
       (throw (js/Error. "unknown state")))))
