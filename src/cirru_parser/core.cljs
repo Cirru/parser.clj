@@ -1,6 +1,8 @@
 
 (ns cirru-parser.core )
 
+(defn build-exprs [*tokens] [])
+
 (defn lex [acc state buffer code]
   (comment println "got" acc state buffer)
   (if (empty? code)
@@ -28,7 +30,7 @@
             "\n" (recur (conj acc buffer) :indent "" body)
             "(" (recur (conj acc buffer :open) :space "" body)
             ")" (recur (conj acc buffer :close) :space "" body)
-            (recur acc (str buffer c) :token body))
+            (recur acc :token (str buffer c) body))
         :string
           (case c
             "\"" (recur (conj acc buffer) :space "" body)
@@ -44,10 +46,11 @@
             (throw (js/Error. (str "Unknown " (pr-str c) " in escape."))))
         :indent
           (case c
-            " " (recur acc :indent (str buffer c) code)
-            "\n" (recur acc :indent "" code)
+            " " (recur acc :indent (str buffer c) body)
+            "\n" (recur acc :indent "" body)
             "\"" (recur (conj acc (count buffer)) :string "" body)
             (recur (conj acc (count buffer)) :token c body))
-        (do (println "Unknown" code) acc)))))
+        (do (println "Unknown:" (pr-str c)) acc)))))
 
-(defn parse [code] )
+(defn parse [code]
+  (let [tokens (lex [] :space "" code), *tokens (atom tokens)] (build-exprs *tokens)))
