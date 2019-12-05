@@ -9,7 +9,7 @@
             [reel.comp.reel :refer [comp-reel]]
             [respo-md.comp.md :refer [comp-md]]
             [cirru-parser.config :refer [dev?]]
-            [cirru-parser.core :refer [lex]]))
+            [cirru-parser.core :refer [lex parse resolve-indentations]]))
 
 (defcomp
  comp-container
@@ -26,7 +26,12 @@
       {:inner-text "Parse",
        :style ui/button,
        :on-click (fn [e d! m!]
-         (m! (assoc state :result (pr-str (lex [] :space "" (:draft state))))))}))
+         (println (parse (:draft state)))
+         (m!
+          (assoc
+           state
+           :result
+           (pr-str (resolve-indentations [] 0 (lex [] :space "" (:draft state)))))))}))
     (div
      {:style (merge ui/expand ui/row)}
      (textarea
