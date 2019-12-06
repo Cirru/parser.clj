@@ -1,7 +1,15 @@
 
 (ns cirru-parser.core )
 
-(defn build-exprs [*tokens] [])
+(defn build-exprs [pull-token! peek-token! put-back!]
+  (let [chunk (pull-token!)]
+    (if (some? chunk)
+      (do (println "chunk" chunk) (recur pull-token! peek-token! put-back!))
+      (println "Finished"))))
+
+(defn parse-indentation [buffer]
+  (let [size (count buffer)]
+    (if (odd? size) (throw (js/Error. (str "Invalid indentaion size: " size))) (/ size 2))))
 
 (defn lex [acc state buffer code]
   (comment println "got" acc state buffer)
@@ -48,9 +56,38 @@
           (case c
             " " (recur acc :indent (str buffer c) body)
             "\n" (recur acc :indent "" body)
-            "\"" (recur (conj acc (count buffer)) :string "" body)
-            (recur (conj acc (count buffer)) :token c body))
+            "\"" (recur (conj acc (parse-indentation buffer)) :string "" body)
+            (recur (conj acc (parse-indentation buffer)) :token c body))
         (do (println "Unknown:" (pr-str c)) acc)))))
 
+(defn resolve-indentations [acc level tokens]
+  (if (empty? tokens)
+    (vec (concat [:open] acc))
+    (let [cursor (first tokens)]
+      (cond
+        (string? cursor) (recur (conj acc cursor) level (rest tokens))
+        (number? cursor)
+          (cond
+            (> cursor level)
+              (let [delta (- cursor level)]
+                (recur (vec (concat acc (repeat delta :open))) cursor (rest tokens)))
+            (< cursor level)
+              (let [delta (- level cursor)]
+                (recur
+                 (vec (concat acc (repeat delta :close) [:close :open]))
+                 cursor
+                 (rest tokens)))
+            :else (recur (conj acc :close :open) level (rest tokens)))
+        (keyword? cursor) (recur (conj acc cursor) level (rest tokens))
+        :else (throw (js/Error. (str "Unknown token: " cursor)))))))
+
 (defn parse [code]
-  (let [tokens (lex [] :space "" code), *tokens (atom tokens)] (build-exprs *tokens)))
+  (let [tokens (resolve-indentations [] 0 (lex [] :space "" code))
+        *tokens (atom tokens)
+        pull-token! (fn []
+                      (if (empty? @*tokens)
+                        nil
+                        (let [cursor (first @*tokens)] (swap! *tokens rest) cursor)))
+        peek-token! (fn [] (first @*tokens))
+        put-back! (fn [x] (swap! *tokens (fn [xs] (cons x xs))))]
+    (build-exprs pull-token! peek-token! put-back!)))
