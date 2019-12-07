@@ -1,11 +1,24 @@
 
-(ns cirru-parser.core )
+(ns cirru-parser.core (:require [cirru-parser.tree :refer [resolve-comma resolve-dollar]]))
+
+(defn add-to-vec [acc xs] (if (empty? xs) acc (recur (conj acc (first xs)) (rest xs))))
+
+(defn grasp-expr [acc pull-token!]
+  (let [cursor (pull-token!)]
+    (cond
+      (= :close cursor) acc
+      (= :open cursor)
+        (let [current (grasp-expr [] pull-token!)] (recur (conj acc current) pull-token!))
+      (string? cursor) (recur (conj acc cursor) pull-token!)
+      :else (throw (js/Error. (str "Unknown cursor: " (pr-str cursor)))))))
 
 (defn build-exprs [pull-token! peek-token! put-back!]
-  (let [chunk (pull-token!)]
-    (if (some? chunk)
-      (do (println "chunk" chunk) (recur pull-token! peek-token! put-back!))
-      (println "Finished"))))
+  (loop [acc []]
+    (let [chunk (pull-token!)]
+      (cond
+        (= chunk :open) (let [expr (grasp-expr [] pull-token!)] (recur (conj acc expr)))
+        (nil? chunk) acc
+        :else (throw (js/Error. (str "Unknown chunk:" (pr-str chunk))))))))
 
 (defn parse-indentation [buffer]
   (let [size (count buffer)]
@@ -47,7 +60,7 @@
             (recur acc :string (str buffer c) body))
         :escape
           (case c
-            "" (recur acc :string (str buffer "\"") body)
+            "\"" (recur acc :string (str buffer "\"") body)
             "t" (recur acc :string (str buffer "\t") body)
             "n" (recur acc :string (str buffer "\n") body)
             "\\" (recur acc :string (str buffer "\\") body)
@@ -57,12 +70,13 @@
             " " (recur acc :indent (str buffer c) body)
             "\n" (recur acc :indent "" body)
             "\"" (recur (conj acc (parse-indentation buffer)) :string "" body)
+            "(" (recur (conj acc (parse-indentation buffer) :open) :space "" body)
             (recur (conj acc (parse-indentation buffer)) :token c body))
         (do (println "Unknown:" (pr-str c)) acc)))))
 
 (defn resolve-indentations [acc level tokens]
   (if (empty? tokens)
-    (vec (concat [:open] acc))
+    (vec (concat [:open] acc (repeat level :close) [:close]))
     (let [cursor (first tokens)]
       (cond
         (string? cursor) (recur (conj acc cursor) level (rest tokens))
@@ -70,14 +84,14 @@
           (cond
             (> cursor level)
               (let [delta (- cursor level)]
-                (recur (vec (concat acc (repeat delta :open))) cursor (rest tokens)))
+                (recur (add-to-vec acc (repeat delta :open)) cursor (rest tokens)))
             (< cursor level)
               (let [delta (- level cursor)]
                 (recur
-                 (vec (concat acc (repeat delta :close) [:close :open]))
+                 (add-to-vec acc (concat (repeat delta :close) [:close :open]))
                  cursor
                  (rest tokens)))
-            :else (recur (conj acc :close :open) level (rest tokens)))
+            :else (recur (if (empty? acc) acc (conj acc :close :open)) level (rest tokens)))
         (keyword? cursor) (recur (conj acc cursor) level (rest tokens))
         :else (throw (js/Error. (str "Unknown token: " cursor)))))))
 
@@ -90,4 +104,4 @@
                         (let [cursor (first @*tokens)] (swap! *tokens rest) cursor)))
         peek-token! (fn [] (first @*tokens))
         put-back! (fn [x] (swap! *tokens (fn [xs] (cons x xs))))]
-    (build-exprs pull-token! peek-token! put-back!)))
+    (resolve-comma (resolve-dollar (build-exprs pull-token! peek-token! put-back!)))))

@@ -5,14 +5,11 @@ Cirru Parser in ClojureScript
 ### Usage
 
 ```edn
-[cirru/parser "0.1.0"]
+[cirru/parser "0.2.0-a1"]
 ```
 
 ```clojure
-; get full AST
-(cirru-parser.core/parse "code" "filename")
-; get simplified AST
-(cirru-parser.core/pare "code" "filename")
+(cirru-parser.core/parse "code")
 ```
 
 ### Develop
@@ -20,9 +17,6 @@ Cirru Parser in ClojureScript
 ```bash
 yarn
 yarn watch
-
-# another terminnal
-node target/main.js demo.cirru
 ```
 
 ### License
