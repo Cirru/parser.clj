@@ -5,7 +5,7 @@ Cirru Parser in ClojureScript
 ### Usage
 
 ```edn
-[cirru/parser "0.2.0-a1"]
+[cirru/parser "0.2.0"]
 ```
 
 ```clojure
