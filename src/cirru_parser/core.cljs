@@ -75,7 +75,7 @@
 
 (defn resolve-indentations [acc level tokens]
   (if (empty? tokens)
-    (add-to-vec acc (concat (repeat level :close) [:close]))
+    (add-to-vec [:open] (concat acc (repeat level :close) [:close]))
     (let [cursor (first tokens)]
       (cond
         (string? cursor) (recur (conj acc cursor) level (rest tokens))
@@ -95,7 +95,7 @@
         :else (throw (js/Error. (str "Unknown token: " cursor)))))))
 
 (defn parse [code]
-  (let [tokens (resolve-indentations [:open] 0 (lex [] :space "" code))
+  (let [tokens (resolve-indentations [] 0 (lex [] :space "" code))
         *tokens (atom tokens)
         pull-token! (fn []
                       (if (empty? @*tokens)
