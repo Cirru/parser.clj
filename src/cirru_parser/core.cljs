@@ -78,21 +78,20 @@
     (add-to-vec acc (concat (repeat level :close) [:close]))
     (let [cursor (first tokens)]
       (cond
-        (string? cursor) (recur (conj acc cursor) level (subvec tokens 1))
+        (string? cursor) (recur (conj acc cursor) level (rest tokens))
         (number? cursor)
           (cond
             (> cursor level)
               (let [delta (- cursor level)]
-                (recur (add-to-vec acc (repeat delta :open)) cursor (subvec tokens 1)))
+                (recur (add-to-vec acc (repeat delta :open)) cursor (rest tokens)))
             (< cursor level)
               (let [delta (- level cursor)]
                 (recur
                  (add-to-vec acc (concat (repeat delta :close) [:close :open]))
                  cursor
-                 (subvec tokens 1)))
-            :else
-              (recur (if (empty? acc) acc (conj acc :close :open)) level (subvec tokens 1)))
-        (keyword? cursor) (recur (conj acc cursor) level (subvec tokens 1))
+                 (rest tokens)))
+            :else (recur (if (empty? acc) acc (conj acc :close :open)) level (rest tokens)))
+        (keyword? cursor) (recur (conj acc cursor) level (rest tokens))
         :else (throw (js/Error. (str "Unknown token: " cursor)))))))
 
 (defn parse [code]
