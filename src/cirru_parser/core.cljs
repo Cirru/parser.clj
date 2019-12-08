@@ -1,7 +1,6 @@
 
-(ns cirru-parser.core (:require [cirru-parser.tree :refer [resolve-comma resolve-dollar]]))
-
-(defn add-to-vec [acc xs] (if (empty? xs) acc (recur (conj acc (first xs)) (rest xs))))
+(ns cirru-parser.core
+  (:require [cirru-parser.tree :refer [resolve-comma resolve-dollar add-to-vec]]))
 
 (defn grasp-expr [acc pull-token!]
   (let [cursor (pull-token!)]
@@ -34,7 +33,7 @@
       :indent acc
       :string (throw (js/Error. "Should not be string"))
       (throw (js/Error. (str "Unknown state:" (pr-str state)))))
-    (let [c (first code), body (subs code 1)]
+    (let [c (subs code 0 1), body (subs code 1)]
       (case state
         :space
           (case c
@@ -76,27 +75,28 @@
 
 (defn resolve-indentations [acc level tokens]
   (if (empty? tokens)
-    (vec (concat [:open] acc (repeat level :close) [:close]))
+    (add-to-vec acc (concat (repeat level :close) [:close]))
     (let [cursor (first tokens)]
       (cond
-        (string? cursor) (recur (conj acc cursor) level (rest tokens))
+        (string? cursor) (recur (conj acc cursor) level (subvec tokens 1))
         (number? cursor)
           (cond
             (> cursor level)
               (let [delta (- cursor level)]
-                (recur (add-to-vec acc (repeat delta :open)) cursor (rest tokens)))
+                (recur (add-to-vec acc (repeat delta :open)) cursor (subvec tokens 1)))
             (< cursor level)
               (let [delta (- level cursor)]
                 (recur
                  (add-to-vec acc (concat (repeat delta :close) [:close :open]))
                  cursor
-                 (rest tokens)))
-            :else (recur (if (empty? acc) acc (conj acc :close :open)) level (rest tokens)))
-        (keyword? cursor) (recur (conj acc cursor) level (rest tokens))
+                 (subvec tokens 1)))
+            :else
+              (recur (if (empty? acc) acc (conj acc :close :open)) level (subvec tokens 1)))
+        (keyword? cursor) (recur (conj acc cursor) level (subvec tokens 1))
         :else (throw (js/Error. (str "Unknown token: " cursor)))))))
 
 (defn parse [code]
-  (let [tokens (resolve-indentations [] 0 (lex [] :space "" code))
+  (let [tokens (resolve-indentations [:open] 0 (lex [] :space "" code))
         *tokens (atom tokens)
         pull-token! (fn []
                       (if (empty? @*tokens)
