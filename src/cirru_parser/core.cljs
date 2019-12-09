@@ -1,7 +1,6 @@
 
-(ns cirru-parser.core (:require [cirru-parser.tree :refer [resolve-comma resolve-dollar]]))
-
-(defn add-to-vec [acc xs] (if (empty? xs) acc (recur (conj acc (first xs)) (rest xs))))
+(ns cirru-parser.core
+  (:require [cirru-parser.tree :refer [resolve-comma resolve-dollar add-to-vec]]))
 
 (defn grasp-expr [acc pull-token!]
   (let [cursor (pull-token!)]
@@ -34,7 +33,7 @@
       :indent acc
       :string (throw (js/Error. "Should not be string"))
       (throw (js/Error. (str "Unknown state:" (pr-str state)))))
-    (let [c (first code), body (subs code 1)]
+    (let [c (subs code 0 1), body (subs code 1)]
       (case state
         :space
           (case c
@@ -76,7 +75,7 @@
 
 (defn resolve-indentations [acc level tokens]
   (if (empty? tokens)
-    (vec (concat [:open] acc (repeat level :close) [:close]))
+    (add-to-vec [:open] (concat acc (repeat level :close) [:close]))
     (let [cursor (first tokens)]
       (cond
         (string? cursor) (recur (conj acc cursor) level (rest tokens))

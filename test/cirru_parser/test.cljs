@@ -20,49 +20,42 @@
     [file (str "data/ast/" x ".edn")]
     (read-string (slurp file))))
 
-(defn check [x]
-  ; (println (parse-file x))
-  ; (println (parse-edn x))
-  (=
-    (parse-file x)
-    (parse-edn x)))
-
 (deftest parse-comma
   (testing "parse comma"
-    (is (check "comma"))))
+    (= (parse-file "comma") (parse-edn "comma"))))
 
 (deftest parse-demo
   (testing "parse demo"
-    (is (check "demo"))))
+    (= (parse-file "demo") (parse-edn "demo"))))
 
 (deftest parse-folding
   (testing "parse folding"
-    (is (check "folding"))))
+    (= (parse-file "folding") (parse-edn "folding"))))
 
 (deftest parse-html
   (testing "parse html"
-    (is (check "html"))))
+    (= (parse-file "html") (parse-edn "html"))))
 
 (deftest parse-indent
   (testing "parse indent"
-    (is (check "indent"))))
+    (= (parse-file "indent") (parse-edn "indent"))))
 
 (deftest parse-line
   (testing "parse line"
-    (is (check "line"))))
+    (= (parse-file "line") (parse-edn "line"))))
 
 (deftest parse-parentheses
   (testing "parse parentheses"
-    (is (check "parentheses"))))
+    (= (parse-file "parentheses") (parse-edn "parentheses"))))
 
 (deftest parse-quote
   (testing "parse quote"
-    (is (check "quote"))))
+    (= (parse-file "quote") (parse-edn "quote"))))
 
 (deftest parse-spaces
   (testing "parse spaces"
-    (is (check "spaces"))))
+    (= (parse-file "spaces") (parse-edn "spaces"))))
 
 (deftest parse-unfolding
   (testing "parse unfolding"
-    (is (check "unfolding"))))
+    (= (parse-file "unfolding") (parse-edn "unfolding"))))
