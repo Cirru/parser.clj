@@ -2,6 +2,7 @@
   (:require [cljs.test :refer [deftest run-tests is testing]]
             [cirru-parser.core :refer [parse]]
             [cljs.reader :refer [read-string]]
+            [cirru-parser.nim :as nim]
             ["fs" :as fs]))
 
 (defn slurp [x] (fs/readFileSync x "utf8"))
@@ -13,7 +14,7 @@
 (defn parse-file [x]
   (let
     [file (str "data/cirru/" x ".cirru")]
-    (parse (slurp file))))
+    (nim/parse (slurp file))))
 
 (defn parse-edn [x]
   (let
@@ -59,3 +60,13 @@
 (deftest parse-unfolding
   (testing "parse unfolding"
     (= (parse-file "unfolding") (parse-edn "unfolding"))))
+
+
+(defn parse-file-with-nim [x]
+  (let
+    [file (str "data/cirru/" x ".cirru")]
+    (nim/parse (slurp file))))
+
+(deftest parse-demo-with-nim
+  (testing "parse demo with nim"
+    (= (parse-file-with-nim "demo") (parse-edn "demo"))))
