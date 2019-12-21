@@ -9,7 +9,8 @@
             [reel.comp.reel :refer [comp-reel]]
             [respo-md.comp.md :refer [comp-md]]
             [cirru-parser.config :refer [dev?]]
-            [cirru-parser.core :refer [lex parse resolve-indentations]]))
+            [cirru-parser.core :refer [lex parse resolve-indentations]]
+            [cirru-parser.nim :as nim]))
 
 (def style-code {:font-family ui/font-code, :white-space :pre, :font-size 12})
 
@@ -34,7 +35,7 @@
            {:result (comment
                      pr-str
                      (resolve-indentations [] 0 (lex [] :space "" (:draft state)))),
-            :tree (pr-str (parse (:draft state)))})))}))
+            :tree (pr-str (nim/parse (:draft state)))})))}))
     (div
      {:style (merge ui/expand ui/row)}
      (textarea
