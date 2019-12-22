@@ -4,7 +4,10 @@
 
 (defn transform-data [tree]
   (if (= (.-kind tree) 1)
-    (-> tree .-list (.map transform-data) (js->clj))
-    (-> tree .-text (.join ""))))
+    (let [expr-list (-> tree .-list)]
+      (if (nil? expr-list) (js/Array.) (-> expr-list (.map transform-data) (js->clj))))
+    (-> tree .-text (.map (fn [n] (js/String.fromCharCode n))) (.join ""))))
 
-(defn parse [code] (let [js-tree (parseCirru code)] (transform-data js-tree)))
+(defn parse [code]
+  (let [js-tree (parseCirru (-> code (.split "") (.map (fn [c] (.charCodeAt c 0)))))]
+    (transform-data js-tree)))
