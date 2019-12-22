@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@cirru/parser.nim@^0.0.1-a1":
-  version "0.0.1-a1"
-  resolved "https://registry.npm.taobao.org/@cirru/parser.nim/download/@cirru/parser.nim-0.0.1-a1.tgz#0ee8eef1681c430f9828d7c0c9e9d4a31be90795"
-  integrity sha1-Duju8WgcQw+YKNfAyenUoxvpB5U=
+"@cirru/parser.nim@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@cirru/parser.nim/-/parser.nim-0.0.5.tgz#e9e4f17e0fb1119860070d9e69af464f9f5303ea"
+  integrity sha512-6mpLXyrtpLTn3dVxHLtlnK8rIafMRzT70hQY0xQeigXIWDJ2PGVHST2as/oLagvwFPijpZBQ1PlD05AJqGAyxw==
 
 asn1.js@^4.0.0:
   version "4.10.1"
