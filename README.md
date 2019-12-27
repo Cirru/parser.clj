@@ -7,7 +7,7 @@ Cirru Parser in ClojureScript
 [![Clojars Project](https://img.shields.io/clojars/v/cirru/parser.svg)](https://clojars.org/cirru/parser)
 
 ```edn
-[cirru/parser "0.2.2"]
+[cirru/parser "0.2.3"]
 ```
 
 ```clojure
