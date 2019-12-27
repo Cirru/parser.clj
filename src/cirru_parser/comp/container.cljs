@@ -35,7 +35,10 @@
            {:result (comment
                      pr-str
                      (resolve-indentations [] 0 (lex [] :space "" (:draft state)))),
-            :tree (pr-str (nim/parse (:draft state)))})))}))
+            :tree (pr-str
+                   (let [started (.now js/Date), result (parse (:draft state))]
+                     (println "Cost" (- (.now js/Date) started))
+                     result))})))}))
     (div
      {:style (merge ui/expand ui/row)}
      (textarea
