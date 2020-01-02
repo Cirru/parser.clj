@@ -75,7 +75,7 @@
 
 (defn resolve-indentations [acc level tokens]
   (if (empty? tokens)
-    (add-to-vec [:open] (concat acc (repeat level :close) [:close]))
+    (if (empty? acc) [] (add-to-vec [:open] (concat acc (repeat level :close) [:close])))
     (let [cursor (first tokens)]
       (cond
         (string? cursor) (recur (conj acc cursor) level (rest tokens))
