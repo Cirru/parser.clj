@@ -73,3 +73,7 @@
 (deftest parse-empty
   (testing "parse empty"
     (is (= (parse-file "empty") (parse-edn "empty")))))
+
+(deftest parse-folded-beginning
+  (testing "parse folded-beginning"
+    (is (= (parse-file "folded-beginning") (parse-edn "folded-beginning")))))

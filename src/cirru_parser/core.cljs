@@ -24,7 +24,6 @@
     (if (odd? size) (throw (js/Error. (str "Invalid indentaion size: " size))) (/ size 2))))
 
 (defn lex [acc state buffer code]
-  (comment println "got" acc state buffer)
   (if (empty? code)
     (case state
       :space acc
@@ -95,7 +94,7 @@
         :else (throw (js/Error. (str "Unknown token: " cursor)))))))
 
 (defn parse [code]
-  (let [tokens (resolve-indentations [] 0 (lex [] :space "" code))
+  (let [tokens (resolve-indentations [] 0 (lex [] :indent "" code))
         *tokens (atom tokens)
         pull-token! (fn []
                       (if (empty? @*tokens)
