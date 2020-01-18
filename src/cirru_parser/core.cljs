@@ -11,7 +11,7 @@
       (string? cursor) (recur (conj acc cursor) pull-token!)
       :else (throw (js/Error. (str "Unknown cursor: " (pr-str cursor)))))))
 
-(defn build-exprs [pull-token! peek-token! put-back!]
+(defn build-exprs [pull-token!]
   (loop [acc []]
     (let [chunk (pull-token!)]
       (cond
@@ -89,7 +89,7 @@
                  (add-to-vec acc (concat (repeat delta :close) [:close :open]))
                  cursor
                  (rest tokens)))
-            :else (recur (if (empty? acc) acc (conj acc :close :open)) level (rest tokens)))
+            :else (recur (if (empty? acc) [] (conj acc :close :open)) level (rest tokens)))
         (keyword? cursor) (recur (conj acc cursor) level (rest tokens))
         :else (throw (js/Error. (str "Unknown token: " cursor)))))))
 
@@ -99,7 +99,5 @@
         pull-token! (fn []
                       (if (empty? @*tokens)
                         nil
-                        (let [cursor (first @*tokens)] (swap! *tokens rest) cursor)))
-        peek-token! (fn [] (first @*tokens))
-        put-back! (fn [x] (swap! *tokens (fn [xs] (cons x xs))))]
-    (resolve-comma (resolve-dollar (build-exprs pull-token! peek-token! put-back!)))))
+                        (let [cursor (first @*tokens)] (swap! *tokens rest) cursor)))]
+    (resolve-comma (resolve-dollar (build-exprs pull-token!)))))
