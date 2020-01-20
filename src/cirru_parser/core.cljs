@@ -95,9 +95,10 @@
 
 (defn parse [code]
   (let [tokens (resolve-indentations [] 0 (lex [] :indent "" code))
-        *tokens (atom tokens)
+        total-size (count tokens)
+        *pointer (atom 0)
         pull-token! (fn []
-                      (if (empty? @*tokens)
+                      (if (>= @*pointer total-size)
                         nil
-                        (let [cursor (first @*tokens)] (swap! *tokens rest) cursor)))]
+                        (let [result (nth tokens @*pointer)] (swap! *pointer inc) result)))]
     (resolve-comma (resolve-dollar (build-exprs pull-token!)))))
