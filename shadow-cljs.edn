@@ -16,10 +16,10 @@
     [appliedscience/js-interop "0.1.21"]
     [org.clojure/core.incubator "0.1.4"]
   ]
-  :repositories {
-    "central" {:url "https://maven.aliyun.com/nexus/content/groups/public/"}
-    "clojars" {:url "https://mirrors.ustc.edu.cn/clojars/"}
-  }
+  ; :repositories {
+  ;   "central" {:url "https://maven.aliyun.com/nexus/content/groups/public/"}
+  ;   "clojars" {:url "https://mirrors.ustc.edu.cn/clojars/"}
+  ; }
   :open-file-command [
     "subl"
     ["%s:%s:%s" :file :line :column]
@@ -43,5 +43,6 @@
       :devtools {:after-load cirru-parser.page/main!}
     }
     :test {:target :node-test, :output-to "target/test.js", :ns-regexp "test$", :autorun true}
+    :test-file {:target :node-test, :output-to "target/test.js", :ns-regexp "test$"}
   }
 }
