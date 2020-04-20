@@ -2,9 +2,7 @@
 (ns cirru-parser.comp.container
   (:require [hsl.core :refer [hsl]]
             [respo-ui.core :as ui]
-            [respo.core
-             :refer
-             [defcomp defeffect cursor-> <> div button textarea span input]]
+            [respo.core :refer [defcomp defeffect >> <> div button textarea span input]]
             [respo.comp.space :refer [=<]]
             [reel.comp.reel :refer [comp-reel]]
             [respo-md.comp.md :refer [comp-md]]
@@ -19,6 +17,7 @@
  (reel)
  (let [store (:store reel)
        states (:states store)
+       cursor []
        state (or (:data states) {:draft "", :result "", :tree ""})]
    (div
     {:style (merge ui/global ui/fullscreen ui/column)}
@@ -28,8 +27,9 @@
      (button
       {:inner-text "Parse",
        :style ui/button,
-       :on-click (fn [e d! m!]
-         (m!
+       :on-click (fn [e d!]
+         (d!
+          cursor
           (merge
            state
            {:result (comment
@@ -45,7 +45,7 @@
       {:style (merge ui/expand ui/textarea style-code),
        :placeholder "Text...",
        :value (:draft state),
-       :on-input (fn [e d! m!] (m! (assoc state :draft (:value e))))})
+       :on-input (fn [e d!] (d! cursor (assoc state :draft (:value e))))})
      (div
       {:style (merge ui/expand ui/column)}
       (textarea
@@ -56,4 +56,4 @@
        {:style (merge ui/expand ui/textarea style-code),
         :placeholder "Tree result...",
         :value (or (:tree state) "")})))
-    (when dev? (cursor-> :reel comp-reel states reel {})))))
+    (when dev? (comp-reel (>> states :reel) reel {})))))

@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "watch": "shadow-cljs watch client test",
-    "serve": "http-server dist -s",
     "build-cdn": "shadow-cljs clj-run build.main/build-cdn",
     "build": "shadow-cljs clj-run build.main/build",
     "up": "yarn build-cdn && tiye-up",
@@ -19,15 +18,14 @@
   "author": "jiyinyiyong",
   "license": "MIT",
   "devDependencies": {
-    "http-server": "^0.12.1",
-    "shadow-cljs": "2.8.83"
+    "shadow-cljs": "2.8.98"
   },
   "peerDependencies": {
     "@cirru/parser.nim": "^0.0.5"
   },
   "dependencies": {
     "@cirru/parser.nim": "^0.0.5",
-    "feather-icons": "^4.25.0",
+    "feather-icons": "^4.28.0",
     "shortid": "^2.2.15"
   }
 }
